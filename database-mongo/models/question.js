@@ -17,15 +17,15 @@ const questionSchema = new db.Schema({
 
 const Question = db.model("Question", questionSchema);
 
-let addPreviousData = () => {
-  let filename = path.join(__dirname, 'questions.csv')
-  let dataToInsert = [];
-  fs.createReadStream(filename)
-  .pipe(csv(['question_id', 'product_id', 'question_body', 'question_date', 'asker_name', 'asker_email', 'reported', 'question_helpfulness']))
-  .on('data', (data) => Question.create(data))
-  .on('end', () => {
-    console.log('Ended');
-  });
+// let addPreviousData = () => {
+//   let filename = path.join(__dirname, 'questions.csv')
+//   let dataToInsert = [];
+//   fs.createReadStream(filename)
+//   .pipe(csv(['question_id', 'product_id', 'question_body', 'question_date', 'asker_name', 'asker_email', 'reported', 'question_helpfulness']))
+//   .on('data', (data) => Question.create(data))
+//   .on('end', () => {
+//     console.log('Ended');
+//   });
   // let data = fs.readFileSync(filename, (err, fileData) {
   //   parse
   // });
