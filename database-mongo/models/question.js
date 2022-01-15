@@ -136,8 +136,61 @@ function addAnswers() {
   });
 };
 
+function addPhotos() {
+  let filename = path.join(__dirname, 'answers_photos.csv')
+  let errors = [];
+  let batch = [];
+  let countPhotos = 0;
+  let currentAnswer = 5;
+  const stream = fs.createReadStream(filename)
+  .pipe(csv(['id', 'answer_id', 'url']))
+  .on('data', (data) => {
+      if(currentAnswer == data.answer_id) {
+        batch.push(data);
+      }
+      else {
+      stream.pause()
+      let currentData = data;
+      Question.findOneAndUpdate({"answers.answer_id": currentAnswer}, {"$set": {"answers.$.photos": batch}})
+        .then(data => {
+          countPhotos += batch.length;
+          console.log(batch.length, 'Answers inserted');
+          console.log(countPhotos, 'Total Photos\n')
+          batch = [currentData];
+          currentAnswer = currentData.answer_id;
+          stream.resume()
+        })
+        .catch(err => {
+          console.log("Error here!!!!\n", err);
+          errors.push(batch);
+          batch = [currentData];
+          currentAnswer = currentData.answer_id;
+          stream.resume()
+        })
+      }
+  })
+  .on('error', (e) => {
+    console.error("What?\n", e)
+  })
+  .on('end', () => {
+    Question.findOneAndUpdate({"answers.answer_id": currentAnswer}, {"$set": {"answers.$.photos": batch}})
+      .then(data => {
+        countPhotos += batch.length;
+        console.log(countPhotos, 'Photos inserted');
+        console.log(errors);
+      })
+      .catch(err => {
+        console.log("Error here!!!!\n", err);
+        errors.push(batch);
+        console.log(countPhotos, 'Photos inserted');
+        console.log(errors);
+      })
+    console.log('end');
+  });
+};
 
 // addQuestions();
-addAnswers();
+// addAnswers();
+addPhotos();
 
 module.exports = Question;
