@@ -1,7 +1,6 @@
 const questions = require("../database-mongo/question.js");
 
 module.exports.getQuestions = (req, res) => {
-  console.log(req.query);
   let { product_id, page, count } = req.query;
   questions
     .find(
@@ -58,6 +57,56 @@ module.exports.getQuestions = (req, res) => {
       }
       let response = {
         product_id,
+        results
+      }
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+module.exports.getAnswers = (req, res) => {
+  let { question_id } = req.params;
+  let { page, count } = req.query;
+  questions
+    .find(
+      { question_id },
+      {
+        _id: 0,
+        answers: 1,
+      }
+    )
+    .then((data) => {
+      answers = data[0].answers;
+      count = count || 5;
+      page = page || 1;
+      let results = [];
+      let lowerBound = count * (page - 1);
+      let upperBound = count * page - 1;
+
+      while (lowerBound <= upperBound) {
+        if (!answers[lowerBound]) {
+          break;
+        }
+        let answer = answers[lowerBound];
+        if (answer.reported === false) {
+          let answerFormated = {
+            answer_id: answer.answer_id,
+            body: answer.body,
+            date: answer.date,
+            answerer_name: answer.answerer_name,
+            helpfulness: answer.helpfulness,
+            photos: answer.photos
+          };
+          results.push(answerFormated);
+        }
+        lowerBound++;
+      }
+      let response = {
+        question: question_id,
+        page,
+        count,
         results
       }
       res.status(200).json(response);
