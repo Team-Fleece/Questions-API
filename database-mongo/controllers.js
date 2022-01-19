@@ -1,4 +1,4 @@
-const questions = require("../database-mongo/question.js");
+const questions = require("./database-mongo/question.js");
 
 module.exports.getQuestions = (req, res) => {
   let { product_id, page, count } = req.query;

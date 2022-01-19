@@ -19,7 +19,8 @@
   "homepage": "https://github.com/Team-Fleece/Questions-API#readme",
   "dependencies": {
     "express": "^4.17.2",
-    "mongoose": "^6.1.6"
+    "mongoose": "^6.1.6",
+    "pg": "^8.7.1"
   },
   "devDependencies": {
     "csv-parser": "^3.0.0",

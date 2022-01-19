@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3070;
 const morgan = require('morgan');
-const {getQuestions, getAnswers} = require('./controllers.js');
+const {getQuestions, getAnswers} = require('../database-postgres');
 
 app.use(morgan('dev'));
 app.use(express.json());
