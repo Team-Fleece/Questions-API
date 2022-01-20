@@ -2,6 +2,7 @@ const {Pool} = require('pg');
 const config = require('../config.js');
 
 const pool = new Pool(config);
+
 module.exports.getQuestions = (req, res) => {
   let { product_id, page, count } = req.query;
   pool.query(`SELECT q.id AS question_id, q.body AS question_body, q.date_written AS question_date, asker_name, q.helpful AS question_helpfulness, q.reported, jsonb_object_agg(a.id, json_build_object
@@ -73,6 +74,103 @@ module.exports.getAnswers = (req, res) => {
         results
       }
       res.status(200).json(response)
+    }
+  })
+}
+
+module.exports.addQuestions = (req, res) => {
+  let {product_id, body, name, email} = req.body;
+  name = name || '';
+  body = body || '';
+  pool.query('INSERT INTO questions (product_id, body, asker_name, asker_email) VALUES ($1, $2, $3, $4)', [product_id, body, name, email], (error, results) => {
+    if (error) {
+      console.log(error);
+      res.sendStatus(500);
+    } else {
+    res.sendStatus(201);
+    }
+  })
+}
+
+module.exports.addAnswers = (req, res) => {
+  let { question_id } = req.params;
+  let {body, name, email, photos} = req.body;
+  body = body || '';
+  pool.query('SELECT * FROM questions WHERE id = $1', [question_id])
+    .then(question => {
+      if (!question.rows.length) {
+        console.log('Invalid question_id')
+        res.sendStatus(500);
+        return;
+      } else {
+        return pool.query('INSERT INTO answers (question_id, body, answerer_name, answerer_email) VALUES ($1, $2, $3, $4) RETURNING id', [question_id, body, name, email])
+      }
+    })
+    .then(answer => {
+      if (photos) {
+        console.log(answer.rows[0].id);
+        let answer_id = answer.rows[0].id;
+        let photosToInsert = photos.map(photo => {
+          return pool.query('INSERT INTO photos (answer_id, url) VALUES ($1, $2)', [answer_id, photo])
+        })
+        console.log('Tried promise');
+        return Promise.all[photosToInsert];
+      }
+    })
+    .then(result => {
+      console.log('Sent photo');
+      res.sendStatus(201);
+    })
+    .catch(error => {
+      console.log(error);
+      res.sendStatus(500);
+    });
+}
+
+module.exports.questionHelpful = (req, res) => {
+  let { question_id } = req.params;
+  pool.query('UPDATE questions SET helpful = helpful + 1 WHERE id = $1', [question_id], (error, answers) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json(error)
+    } else {
+      res.status(204).json(1)
+    }
+  })
+}
+
+module.exports.answerHelpful = (req, res) => {
+  let { answer_id } = req.params;
+  pool.query('UPDATE answers SET helpful = helpful + 1 WHERE id = $1', [answer_id], (error, answers) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json(error)
+    } else {
+      res.status(204).json(1)
+    }
+  })
+}
+
+module.exports.questionReport = (req, res) => {
+  let { question_id } = req.params;
+  pool.query('UPDATE questions SET reported = true WHERE id = $1', [question_id], (error, answers) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json(error)
+    } else {
+      res.status(204).json(1)
+    }
+  })
+}
+
+module.exports.answerReport = (req, res) => {
+  let { answer_id } = req.params;
+  pool.query('UPDATE answers SET reported = true WHERE id = $1', [answer_id], (error, answers) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json(error)
+    } else {
+      res.status(204).json(1)
     }
   })
 }
