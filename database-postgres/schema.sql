@@ -28,10 +28,16 @@ CREATE TABLE IF NOT EXISTS photos (
   url TEXT
 );
 
-COPY questions FROM '/Users/reh/Documents/SEI/questions-api/qa-data/questions.csv' DELIMITER ',' CSV HEADER;
+COPY questions FROM '/home/ubuntu/questions-api/qa-data/questions.csv' DELIMITER ',' CSV HEADER;
 
-COPY answers FROM '/Users/reh/Documents/SEI/questions-api/qa-data/answers.csv' DELIMITER ',' CSV HEADER;
+CREATE INDEX product_id_idx ON questions (product_id);
 
-COPY photos FROM '/Users/reh/Documents/SEI/questions-api/qa-data/answers_photos.csv' DELIMITER ',' CSV HEADER;
+COPY answers FROM '/home/ubuntu/questions-api/qa-data/answers.csv' DELIMITER ',' CSV HEADER;
+
+CREATE INDEX question_id_idx ON answers (question_id);
+
+COPY photos FROM '/home/ubuntu/questions-api/qa-data/answers_photos.csv' DELIMITER ',' CSV HEADER;
+
+CREATE INDEX answer_id_idx ON photos (answer_id);
 
 -- run command psql -d questionsapi -f database-postgres/schema.sql
