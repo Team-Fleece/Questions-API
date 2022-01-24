@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3070;
-const morgan = require('morgan');
+// const morgan = require('morgan');
 const {getQuestions, getAnswers, addQuestions, addAnswers, questionHelpful, answerHelpful, questionReport, answerReport} = require('../database-postgres');
 
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -83,6 +83,11 @@ app.put('/qa/answers/:answer_id/report', (req, res) => {
   } else {
     answerReport(req, res);
   }
+})
+
+app.get('/loaderio-a3009e923f03cb5cba7683069608462a/', (req, res) => {
+  var dirPath = __dirname;
+  res.sendFile(`${dirPath}/loaderio-a3009e923f03cb5cba7683069608462a.txt`);
 })
 
 app.listen(port, () => {

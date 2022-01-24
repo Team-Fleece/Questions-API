@@ -1,3 +1,5 @@
 node_modules
 qa-data
 config.js
+.DS_Store
+questionsapi.pgsql

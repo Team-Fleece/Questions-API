@@ -1,7 +1,7 @@
 const {Pool} = require('pg');
 const config = require('../config.js');
 
-const pool = new Pool(config);
+const pool = new Pool(config)
 
 module.exports.getQuestions = (req, res) => {
   let { product_id, page, count } = req.query;
@@ -108,17 +108,14 @@ module.exports.addAnswers = (req, res) => {
     })
     .then(answer => {
       if (photos) {
-        console.log(answer.rows[0].id);
         let answer_id = answer.rows[0].id;
         let photosToInsert = photos.map(photo => {
           return pool.query('INSERT INTO photos (answer_id, url) VALUES ($1, $2)', [answer_id, photo])
         })
-        console.log('Tried promise');
         return Promise.all[photosToInsert];
       }
     })
     .then(result => {
-      console.log('Sent photo');
       res.sendStatus(201);
     })
     .catch(error => {
